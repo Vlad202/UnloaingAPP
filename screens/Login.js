@@ -34,6 +34,7 @@ function LoginScreen(props) {
                 }            })
             .catch((error) => {
                 if (error) {
+                    console.log(error.message)
                     Alert.alert('Не удалось войти!', 'Неверный логин или пароль!');
                 }
             });

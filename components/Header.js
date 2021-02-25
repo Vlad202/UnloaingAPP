@@ -19,6 +19,7 @@ class Header extends React.Component {
     logOut() {
         SyncStorage.remove('username');
         SyncStorage.remove('token');
+        SyncStorage.remove('is_superuser');
         return this.props.navigation.dispatch(StackActions.replace('Вход'));
     }
 

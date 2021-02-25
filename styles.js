@@ -31,12 +31,12 @@ const styles = StyleSheet.create({
     },
     btn_client: {
         margin: 5,
-        minWidth: 90,
-        minHeight: 40,
+        minWidth: 55,
+        minHeight: 30,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#45BA52',
-        borderRadius: 50,
+        borderRadius: 10,
     },
     btn_group: {
         margin: 10,
@@ -47,15 +47,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#45BA52',
         borderRadius: 50,
     },
+    btn_client_text: {
+        fontSize: 9,
+        color: 'white'
+    },
     btn_text: {
+        fontSize: 16,
         color: 'white'
     },
     btn_group_text: {
         color: 'white',
         fontSize: 16,
     },
+    client_name_view: {
+        width: '30%'
+    },
     client_item_name: {
-        fontSize: 18,
+        fontSize: 14,
         color: '#333',
     },
     client_view: {

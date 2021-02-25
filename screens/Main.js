@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { Text, View, StatusBar, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import styles from '../styles';
 import axios from 'axios';
 import URLS from '../settings';
@@ -12,17 +12,8 @@ class MainScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            buttons: [
-                {
-                    text: 'Список клиентов',
-                    screen_name: 'Клиенты',
-                },
-                {
-                    text: 'Создать отгрузку',
-                    screen_name: 'Добавить отгрузку',
-                }
-            ],
-            data: [],
+            data: null,
+            btn_clients: false,
         };  
     }
     componentDidMount() {
@@ -33,12 +24,8 @@ class MainScreen extends React.Component {
         })
         .then((response) => {
             if (response.data.is_superuser) {
-                let btns_response = this.state.buttons;
-                btns_response.push({
-                    text: 'Список пользователей',
-                    screen_name: 'Список пользователей',
-                });
-                this.setState({buttons: btns_response});
+                SyncStorage.set('is_superuser', response.data.is_superuser);
+                this.setState({btn_clients: true});
             }
         })
         .catch((error) => {
@@ -54,7 +41,6 @@ class MainScreen extends React.Component {
             })
             .then((response) => {
                 this.setState({data: response.data});
-                console.log(response.data);
             })
             .catch((error) => {
                 Alert.alert('Произошла ошибка!', 'Не удалось загрузить список отгрузок.')
@@ -62,29 +48,27 @@ class MainScreen extends React.Component {
         });
     }
     renderButtons() {
-        return (
-            this.state.buttons.map((item, id) => {
-                return(
-                    <TouchableOpacity key={id} onPress={() => this.props.navigation.navigate(item.screen_name)} style={styles.btn_group} >
-                        <Text style={styles.btn_group_text}>{item.text}</Text>
+        if (this.state.btn_clients) {
+            return (
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Список пользователей')} style={styles.btn_group} >
+                        <Text style={styles.btn_group_text}>Список пользователей</Text>
                     </TouchableOpacity>
-                )
-            })
-        )
+            )
+        }
     }
 
     rowsData() {
         return (
             this.state.data.map((item, id) => {
                 return (
-                    <TouchableOpacity key={id}>
+                    <View key={id}>
                         <DataTable.Row>
                             <DataTable.Cell>{item.client}</DataTable.Cell>
                             <DataTable.Cell>{item.details}</DataTable.Cell>
                             <DataTable.Cell numeric>{item.price}</DataTable.Cell>
                             <DataTable.Cell numeric>{item.alredy_paid}</DataTable.Cell>
                         </DataTable.Row>
-                    </TouchableOpacity>
+                    </View>
                 )
             })
         )
@@ -92,26 +76,44 @@ class MainScreen extends React.Component {
 
 
     render() {
-        return (
-            <View style={styles.containerList}>
-                <View style={styles.buttons}>
-                    {this.renderButtons()}
-                    <View style={styles.header_view}>
-                        <Text style={styles.header}>Последние отгрузки</Text>
-                    </View>
+        const buttons = (
+            <View style={styles.buttons}>
+                <View>
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Клиенты')} style={styles.btn_group} >
+                        <Text style={styles.btn_group_text}>Список клиентов</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Добавить отгрузку', {client: false })} style={styles.btn_group} >
+                        <Text style={styles.btn_group_text}>Создать отгрузку</Text>
+                    </TouchableOpacity>
                 </View>
-                <ScrollView>
-                    <DataTable>
-                        <DataTable.Header>
-                            <DataTable.Title>Клиент</DataTable.Title>
-                            <DataTable.Title>Детали</DataTable.Title>
-                            <DataTable.Title numeric>Цена</DataTable.Title>
-                            <DataTable.Title numeric>Внесено</DataTable.Title>
-                        </DataTable.Header>
-                        {this.rowsData()}
-                    </DataTable>
-                </ScrollView>
+                {this.renderButtons()}
+                <View style={styles.header_view}>
+                    <Text style={styles.header}>Последние отгрузки</Text>
+                </View>
             </View>
+        )
+        return (
+            this.state.data ? (
+                <View style={styles.containerList}>
+                    {buttons}
+                    <ScrollView>
+                        <DataTable>
+                            <DataTable.Header>
+                                <DataTable.Title>Клиент</DataTable.Title>
+                                <DataTable.Title>Детали</DataTable.Title>
+                                <DataTable.Title numeric>Цена</DataTable.Title>
+                                <DataTable.Title numeric>Внесено</DataTable.Title>
+                            </DataTable.Header>
+                            {this.rowsData()}
+                        </DataTable>
+                    </ScrollView>
+                </View>
+            ) : (
+                <View style={styles.containerList}>
+                    {buttons}
+                    <ActivityIndicator size="large" color="#45BA52" />
+                </View>
+            )
         )
     }
 }

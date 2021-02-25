@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { Text, View, ActivityIndicator, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import styles from '../styles';
 import axios from 'axios';
 import URLS from '../settings';
@@ -12,7 +12,7 @@ class UsersScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            data: null,
         };  
     }
 
@@ -68,33 +68,38 @@ class UsersScreen extends React.Component {
     }
     
     render() {
-        if (this.state.data) {
-            return (
-                <View style={styles.containerList}>
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Создать пользователя')} style={styles.btn_group} >
-                        <Text style={styles.btn_group_text}>Создать пользователя</Text>
-                    </TouchableOpacity>
-                    <ScrollView>
-                        <DataTable>
-                            <DataTable.Header>
-                                <DataTable.Title>Тел./ник.</DataTable.Title>
-                                <DataTable.Title>Имя</DataTable.Title>
-                                <DataTable.Title>Фамилия</DataTable.Title>
-                                <DataTable.Title>Админ</DataTable.Title>
-                                <DataTable.Title>E-mail</DataTable.Title>
-                                <DataTable.Title>Цвет</DataTable.Title>
-                            </DataTable.Header>
-                            {this.rowsData()}
-                        </DataTable>
-                    </ScrollView>
-                </View>
-            )
-        }
-        return (
-            <View style={[styles.container, styles.horizontal]}>
-                <ActivityIndicator size="large" color="#00ff00" />
-            </View>
+        const btn = (
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('Создать пользователя')} style={styles.btn_group} >
+                <Text style={styles.btn_group_text}>Создать пользователя</Text>
+            </TouchableOpacity>
         )
+            return (
+                this.state.data ? (
+                    <View style={styles.containerList}>
+                        {btn}
+                        <ScrollView>
+                            <DataTable>
+                                <DataTable.Header>
+                                    <DataTable.Title>Тел./ник.</DataTable.Title>
+                                    <DataTable.Title>Имя</DataTable.Title>
+                                    <DataTable.Title>Фамилия</DataTable.Title>
+                                    <DataTable.Title>Админ</DataTable.Title>
+                                    <DataTable.Title>E-mail</DataTable.Title>
+                                    <DataTable.Title>Цвет</DataTable.Title>
+                                </DataTable.Header>
+                                {this.rowsData()}
+                            </DataTable>
+                        </ScrollView>
+                    </View>
+                ) : (
+                    <View style={styles.containerList}>
+                        {btn}
+                        <View style={[styles.container, styles.horizontal]}>
+                            <ActivityIndicator size="large" color="#45BA52" />
+                        </View>
+                    </View>
+                )
+            )
     }
 }
 
