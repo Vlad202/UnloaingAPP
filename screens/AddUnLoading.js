@@ -15,7 +15,7 @@ class AddUnLoadingScreen extends React.Component {
             name: '',
             description: '',
             data: [],
-            client: undefined,
+            client: this.props.route.params.client,
             details: '',
             price: undefined,
             alredy_paid: undefined,
@@ -23,13 +23,13 @@ class AddUnLoadingScreen extends React.Component {
             selectedTeam: {},
             selectedTeams: [],
             is_superuser: SyncStorage.get('is_superuser'),
-            has_client: false,
+            has_client: this.props.route.params.client,
         };  
     }
 
     async componentDidMount() {
-        this.setState({has_client: this.props.route.params.client});
-        this.setState({client: this.props.route.params.client});
+        // this.setState({has_client: this.props.route.params.client});
+        // this.setState({client: this.props.route.params.client});
         if (!this.state.client) {
             await axios.get(`${URLS.cli}all/`, 
             {
@@ -189,7 +189,7 @@ class AddUnLoadingScreen extends React.Component {
                     multiOptionContainerStyle={{
                         backgroundColor: '#45BA52'
                     }}
-                    width={300}
+                    width={'70%'}
                 />
             )
         }
@@ -202,7 +202,7 @@ class AddUnLoadingScreen extends React.Component {
                     <Text style={styles.clientsPickerText}>Выберите клиента</Text>
                     <Picker
                         selectedValue={this.state.client}
-                        style={{ height: 50, width: 300 }}
+                        style={{ height: 50, width: 270 }}
                         onValueChange={(itemValue, itemIndex) => this.setState({client: itemValue})}
                     >
                         {this.handlePicker()}
