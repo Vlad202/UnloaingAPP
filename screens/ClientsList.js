@@ -5,14 +5,19 @@ import axios from 'axios';
 import URLS from '../settings';
 import SyncStorage from 'sync-storage';
 import DelayInput from "react-native-debounce-input";
+import UnloadDialog from '../components/UnloadDetailsDialog';
 
 
 class ClientsListScreen extends React.Component {
     constructor(props) {
         super(props);
+        // this.handleCancel = this.handleCancel.bind(this);
+        // this.handleDelete = this.handleDelete.bind(this);
         this.state = {
             clients: null,
-            message: ''
+            message: '',
+            visible: false,
+            msg: ''
         };  
     }
     componentDidMount() {  
@@ -40,9 +45,26 @@ class ClientsListScreen extends React.Component {
         }
     }
 
+    showDialog = () => {
+        this.setState({visible: true});
+    };
+     
+    handleCancel = () => {
+        this.setState({visible: false});
+    };
+    handleDelete = () => {
+        this.setState({visible: false});
+    };
+    handleAlertShowing = (msg, user_id) => {
+        console.log(msg);
+        // this.setState({msg: 'msg'});
+        this.setState({user_id: user_id});
+        this.setState({visible: true});
+    }
+
     returnClient(item, id) {
         return(
-            <TouchableOpacity onPress={() => Alert.alert(item.name, item.description)} key={id} style={styles.client_view} >
+            <TouchableOpacity onPress={() => this.handleAlertShowing(item.description, item.id)} key={id} style={styles.client_view} >
                 <View style={styles.client_name_view}>
                     <Text style={styles.client_item_name}>{item.name}</Text>
                 </View>
@@ -62,7 +84,6 @@ class ClientsListScreen extends React.Component {
     }
 
     renderClients() {
-        console.log(this.state.clients);
         if (!this.state.message.length) {
             return (
                 this.state.clients.map((item, id) => {
@@ -89,6 +110,7 @@ class ClientsListScreen extends React.Component {
             this.state.clients ? (
                 <View style={styles.containerList}>
                     {btn}
+                    <UnloadDialog handleCancel={this.handleCancel} handleDelete={this.handleDelete} user_id={this.state.user_id} msg={this.state.msg} visible={this.state.visible} />
                     <DelayInput
                         minLength={0}
                         onChangeText={(msg) => this.setState({message: msg})}

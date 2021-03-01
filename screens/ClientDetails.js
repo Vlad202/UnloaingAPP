@@ -5,20 +5,20 @@ import axios from 'axios';
 import URLS from '../settings';
 import SyncStorage from 'sync-storage';
 import { DataTable } from 'react-native-paper';
-import Dialog from "react-native-dialog";
 import UnloadDialog from '../components/UnloadDetailsDialog';
+
 
 class ClientsDetailsScreen extends React.Component {
     constructor(props) {
         super(props);
         this.handleCancel = this.handleCancel.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
         this.state = {
             data: undefined,
             visible: false,
         };  
     }
-    async componentDidMount() {
-        // console.log(`${URLS.cli}unloading/list/${this.props.route.params.id}/`);
+    async getListHandler() {
         await axios.get(`${URLS.cli}unloading/list/${this.props.route.params.id}/`, {
             headers: {
                 'Authorization': 'Token ' + SyncStorage.get('token')
@@ -29,7 +29,11 @@ class ClientsDetailsScreen extends React.Component {
         })
         .catch((error) => {
             console.log(error);
-        });   
+        }); 
+    }
+    async componentDidMount() {
+        // console.log(`${URLS.cli}unloading/list/${this.props.route.params.id}/`);
+        await this.getListHandler();  
     }
 
     showDialog = () => {
@@ -40,14 +44,50 @@ class ClientsDetailsScreen extends React.Component {
         this.setState({visible: false});
     };
 
-    handleAlertShowing = (msg) => {
+    async deleteUnloading() {
+        await axios.get(`${URLS.cli}unloading/${this.state.user_id}/delete/`, {
+            headers: {
+                'Authorization': 'Token ' + SyncStorage.get('token')
+            }
+        })
+        .then((response) => {
+            Alert.alert('Отгрузка удалена!', 
+            `Вы успешно удалили отгрузку`,
+            [
+                {
+                    text: 'Готово',
+                    onPress: () => this.getListHandler()
+                },
+            ]);
+        })
+        .catch((error) => {
+            Alert.alert('Произошла ошибка', 'Не удалось создать отгрузку!');
+        });   
+    }
+    
+    handleDelete = () => {
+        this.setState({visible: false});
+        Alert.alert('Вы уверены?', `Вы пытаетесь удалить отгрузку id${this.state.user_id}.`,
+        [
+            {
+              text: "Закрыть",
+              style: "cancel"
+            },
+            { text: "Удалить", onPress: () => this.deleteUnloading() }
+          ]
+        )
+    }
+
+    handleAlertShowing = (msg, user_id) => {
         this.setState({msg: msg});
+        this.setState({user_id: user_id});
         this.setState({visible: true});
     }
 
     rowsData() {
         return (
             this.state.data.map((item, id) => {
+                let user_id = item.id;
                 let msg = 
                 <View>
                     <Text>{`Детали: ${item.details}\n\nОтгружали:`}</Text>
@@ -66,7 +106,7 @@ class ClientsDetailsScreen extends React.Component {
                 </View>;
                 return (
                     <View>
-                        <TouchableOpacity key={id} onPress={() => this.handleAlertShowing(msg)}>
+                        <TouchableOpacity key={id} onPress={() => this.handleAlertShowing(msg, user_id)}>
                             <DataTable.Row>
                                 <DataTable.Cell>{item.date}</DataTable.Cell>
                                 <DataTable.Cell numeric>{item.price}</DataTable.Cell>
@@ -90,7 +130,7 @@ class ClientsDetailsScreen extends React.Component {
                             {this.state.msg}
                             <Dialog.Button label="Закрыть" onPress={this.handleCancel} />
                         </Dialog.Container> */}
-                        <UnloadDialog handleCancel={this.handleCancel} msg={this.state.msg} visible={this.state.visible} />
+                        <UnloadDialog handleCancel={this.handleCancel} handleDelete={this.handleDelete} user_id={this.state.user_id} msg={this.state.msg} visible={this.state.visible} />
                         <DataTable>
                             <DataTable.Header>
                                 <DataTable.Title>Дата</DataTable.Title>

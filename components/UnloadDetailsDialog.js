@@ -25,6 +25,7 @@ class UnloadDialog extends React.Component {
                 <Dialog.Title>Детали</Dialog.Title>
                     {this.props.msg}
                 <Dialog.Button label="Закрыть" onPress={this.props.handleCancel} />
+                <Dialog.Button label="Удалить" onPress={this.props.handleDelete} />
             </Dialog.Container>
         )
     }
